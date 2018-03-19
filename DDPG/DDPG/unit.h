@@ -45,3 +45,4 @@ double *ramdom(double *x, int row, int col);
 
 network init_net(int len, int batch, int *sizes);
 
+double *linear(double *in, double *weight, double *bias, double *out, int batch, int row, int col);

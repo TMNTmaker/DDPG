@@ -50,3 +50,18 @@ network init_net(int len, int batch, int *sizes) {
 	return net;
 }
 
+double *linear(double *in, double *weight, double *bias, double *out, int batch, int row, int col)
+{
+	int i, j, k;
+	for (k = 0; k < batch; k++) {
+		for (i = 0; i < row; i++) {
+			double sum = 0;
+			for (j = 0; j < col; j++) {
+				sum += in[k * col + j] * weight[j * row + i];
+			}
+			out[k * row + i] = sum + bias[i];
+		}
+	}
+	return out;
+}
+
