@@ -65,3 +65,56 @@ double *linear(double *in, double *weight, double *bias, double *out, int batch,
 	return out;
 }
 
+double *linear_back_bias(double *back_bias, double *back_out, int batch, int row)
+{
+	int i, j;
+	for (i = 0; i < row; i++) {
+		double sum = 0;
+		for (j = 0; j < batch; j++) {
+
+			sum += back_out[j*row + i];
+		}
+		back_bias[i] = sum;
+	}
+	return back_bias;
+}
+
+double *linear_back_weight(double *back_weight, double *back_out, double *in, int batch, int row, int col)
+{
+	int i, j, k;
+	for (i = 0; i < col; i++) {
+		for (k = 0; k < row; k++) {
+			double sum = 0;
+			for (j = 0; j < batch; j++) {
+				sum += in[j*col + i] * back_out[j*row + k];
+			}
+			back_weight[i*row + k] = sum;
+		}
+	}
+	return back_weight;
+}
+
+double *linear_back_in(double *back_in, double *back_out, double *weight, int batch, int row, int col)
+{
+	int i, j, k;
+	for (i = 0; i < batch; i++) {
+		for (k = 0; k < col; k++) {
+			double sum = 0;
+			for (j = 0; j < row; j++) {
+				sum += back_out[i*row + j] * weight[k*row + j];
+			}
+			back_in[i*col + k] = sum;
+		}
+	}
+	return back_in;
+}
+
+void linear_back(double *in, double *weight, double *bias,
+	double *back_out, double *back_in, double *back_weight, double *back_bias,
+	int batch, int row, int col)
+{
+	linear_back_bias(back_bias, back_out, batch, row);
+	linear_back_weight(back_weight, back_out, in, batch, row, col);
+	linear_back_in(back_in, back_out, weight, batch, row, col);
+}
+

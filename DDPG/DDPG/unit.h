@@ -46,3 +46,10 @@ double *ramdom(double *x, int row, int col);
 network init_net(int len, int batch, int *sizes);
 
 double *linear(double *in, double *weight, double *bias, double *out, int batch, int row, int col);
+double *linear_back_bias(double *back_bias, double *back_out, int batch, int row);
+double *linear_back_weight(double *back_weight, double *back_out, double *in, int batch, int row, int col);
+double *linear_back_in(double *back_in, double *back_out, double *weight, int batch, int row, int col);
+void linear_back(double *in, double *weight, double *bias,
+	double *back_out, double *back_in, double *back_weight, double *back_bias,
+	int batch, int row, int col);
+
