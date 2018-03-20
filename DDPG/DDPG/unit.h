@@ -60,3 +60,8 @@ double *sigmoid_back(double *out, double *dout, int batch, int row);
 double *tanh_(double *in, double *out, int batch, int row);
 double *tanh_back(double *out, double *dout, int batch, int row);
 
+double mean_squared_error(double *y, double *t, int batch, int row);
+double *mean_squared_error_back(double *y, double *t, double *back_out, int batch, int row);
+double huber_loss(double *y, double *t, int batch, int row);
+double *huber_loss_back(double *y, double *t, double *back_out, int batch, int row);
+

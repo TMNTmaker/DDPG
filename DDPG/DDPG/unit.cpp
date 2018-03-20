@@ -188,3 +188,59 @@ double *tanh_back(double *out, double *dout, int batch, int row)
 	return dout;
 }
 
+double mean_squared_error(double *y, double *t, int batch, int row) {
+
+	int i, j;
+	double loss = 0;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			loss += pow((y[i*row + j] - t[i*row + j]), 2);
+		}
+	}
+	return 0.5*loss / batch;
+}
+
+double *mean_squared_error_back(double *y, double *t, double *back_out, int batch, int row) {
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			back_out[i*row + j] = (y[i*row + j] - t[i*row + j]);
+		}
+	}
+	return back_out;
+}
+
+double huber_loss(double *y, double *t, int batch, int row) {
+	int i, j;
+	double loss = 0;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			//printf("y:%f t:%f\n", y[i*row + j], t[i*row + j]);
+
+			double err = y[i*row + j] - t[i*row + j];
+			if (fabs(err) < 1.0)
+				loss += 0.5*pow(err, 2);
+			else
+				loss += fabs(err);
+		}
+	}
+	return loss / batch;
+
+}
+
+double *huber_loss_back(double *y, double *t, double *back_out, int batch, int row) {
+
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			double err = y[i*row + j] - t[i*row + j];
+			if (fabs(err) < 1)
+				back_out[i*row + j] = err;
+			else
+				back_out[i*row + j] = err > 0 ? 1 : -1;
+		}
+	}
+	return back_out;
+}
+
+
