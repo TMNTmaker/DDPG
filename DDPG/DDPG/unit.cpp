@@ -118,3 +118,73 @@ void linear_back(double *in, double *weight, double *bias,
 	linear_back_in(back_in, back_out, weight, batch, row, col);
 }
 
+double *leaky_relu(double *in, double *out, int batch, int row)
+{
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			out[i * row + j] = in[i * row + j] >= 0 ?
+				in[i * row + j] :
+				in[i * row + j] * 0.2;
+		}
+	}
+	return out;
+}
+
+double *leaky_relu_back(double *in, double *out, int batch, int row)
+{
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			out[i * row + j] = in[i * row + j] >= 0 ?
+				out[i * row + j] :
+				out[i * row + j] * 0.2;
+		}
+	}
+	return out;
+}
+
+double *sigmoid(double *in, double *out, int batch, int row)
+{
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			out[i * row + j] = 1 / (1 + exp(-in[i * row + j]));
+		}
+	}
+	return out;
+}
+
+double *sigmoid_back(double *out, double *dout, int batch, int row)
+{
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			dout[i * row + j] = dout[i * row + j] * out[i * row + j] * (1 - out[i * row + j]);
+		}
+	}
+	return dout;
+}
+
+double *tanh_(double *in, double *out, int batch, int row)
+{
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			out[i * row + j] = tanh(-in[i * row + j]);
+		}
+	}
+	return out;
+}
+
+double *tanh_back(double *out, double *dout, int batch, int row)
+{
+	int i, j;
+	for (i = 0; i < batch; i++) {
+		for (j = 0; j < row; j++) {
+			dout[i * row + j] = dout[i * row + j] * out[i * row + j] * (1 - pow(out[i * row + j], 2));
+		}
+	}
+	return dout;
+}
+

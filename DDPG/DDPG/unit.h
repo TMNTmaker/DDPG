@@ -53,3 +53,10 @@ void linear_back(double *in, double *weight, double *bias,
 	double *back_out, double *back_in, double *back_weight, double *back_bias,
 	int batch, int row, int col);
 
+double *leaky_relu(double *in, double *out, int batch, int row);
+double *leaky_relu_back(double *in, double *out, int batch, int row);
+double *sigmoid(double *in, double *out, int batch, int row);
+double *sigmoid_back(double *out, double *dout, int batch, int row);
+double *tanh_(double *in, double *out, int batch, int row);
+double *tanh_back(double *out, double *dout, int batch, int row);
+
