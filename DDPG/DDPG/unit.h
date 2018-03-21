@@ -65,3 +65,6 @@ double *mean_squared_error_back(double *y, double *t, double *back_out, int batc
 double huber_loss(double *y, double *t, int batch, int row);
 double *huber_loss_back(double *y, double *t, double *back_out, int batch, int row);
 
+void sgd_update(double *weight, double *back_weight, double *bias, double *back_bias, double lr, int row, int col);
+void adam_update(network *net);
+

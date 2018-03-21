@@ -244,3 +244,39 @@ double *huber_loss_back(double *y, double *t, double *back_out, int batch, int r
 }
 
 
+void sgd_update(double *weight, double *back_weight, double *bias, double *back_bias, double lr, int row, int col) {
+	int i, j;
+	for (i = 0; i < col; i++) {
+		for (j = 0; j < row; j++) {
+			weight[i*row + j] -= lr * back_weight[i*row + j];
+		}
+	}
+	for (j = 0; j < row; j++) {
+		bias[j] -= lr * back_bias[j];
+	}
+
+}
+
+void adam_update(network *net) {
+	net->iter++;
+	double lr_t = net->lr * sqrt(1.0 - pow(net->beta2, net->iter)) / (1.0 - pow(net->beta1, net->iter));
+
+	int i, j, k;
+
+	for (k = 0; k < net->len; k++) {
+		for (i = 0; i < net->size[k]; i++) {
+			for (j = 0; j < net->size[k + 1]; j++) {
+				net->net3[k].wm[i* net->size[k + 1] + j] += (1 - net->beta1) * (net->net3[k].dw[i* net->size[k + 1] + j] - net->net3[k].wm[i* net->size[k + 1] + j]);
+				net->net3[k].wv[i* net->size[k + 1] + j] += (1 - net->beta2) * (pow(net->net3[k].dw[i* net->size[k + 1] + j], 2) - net->net3[k].wv[i* net->size[k + 1] + j]);
+				net->net3[k].w[i* net->size[k + 1] + j] -= lr_t * net->net3[k].wm[i* net->size[k + 1] + j] / (sqrt(net->net3[k].wv[i* net->size[k + 1] + j]) + 1e-7);
+			}
+		}
+		for (j = 0; j < net->size[k + 1]; j++) {
+			net->net3[k].bm[j] += (1 - net->beta1) * (net->net3[k].db[j] - net->net3[k].bm[j]);
+			net->net3[k].bv[j] += (1 - net->beta2) * (pow(net->net3[k].db[j], 2) - net->net3[k].bv[j]);
+			net->net3[k].b[j] -= lr_t * net->net3[k].bm[j] / (sqrt(net->net3[k].bv[j]) + 1e-7);
+		}
+
+	}
+}
+
