@@ -324,3 +324,84 @@ void Pnetwork_predict(double *x, network *net) {
 	}
 }
 
+void Qnetwork_train(double *x, double *targetsQ, network *net) {
+	static int batch[10] = {};
+	static double *de;
+	if (batch[net->id] != net->batch) {
+		batch[net->id] = net->batch;
+		de = (double*)calloc(net->size[net->len] * net->batch, sizeof(double));
+		for (int i = net->len - 1; i >= 0; i--) {
+			net->net3[i].dx = (double*)calloc(net->size[i] * net->batch, sizeof(double));
+		}
+	}
+	Qnetwork_predict(x, net);
+	net->loss = huber_loss(net->net3[net->len - 1].y, targetsQ, net->batch, net->size[net->len]);
+	huber_loss_back(net->net3[net->len - 1].y, targetsQ, de, net->batch, net->size[net->len]);
+
+	for (int i = net->len - 1; i >= 0; i--) {
+
+		if (i == net->len - 1) {
+			linear_back(net->net3[i - 1].a_y, net->net3[i].w, net->net3[i].b,
+				de, net->net3[i].dx, net->net3[i].dw, net->net3[i].db,
+				net->batch, net->size[i + 1], net->size[i]);
+		}
+		else if (i == 0) {
+			linear_back(x, net->net3[i].w, net->net3[i].b,
+				net->net3[i + 1].dx, net->net3[i].dx, net->net3[i].dw, net->net3[i].db,
+				net->batch, net->size[i + 1], net->size[i]);
+		}
+
+		else {
+			linear_back(net->net3[i - 1].a_y, net->net3[i].w, net->net3[i].b,
+				net->net3[i + 1].dx, net->net3[i].dx, net->net3[i].dw, net->net3[i].db,
+				net->batch, net->size[i + 1], net->size[i]);
+		}
+
+		if (i != 0) {
+			leaky_relu_back(net->net3[i - 1].y, net->net3[i].dx, net->batch, net->size[i]);
+		}
+
+	}
+	adam_update(net);
+}
+
+void Pnetwork_train(double *x, double *de, network *net) {
+	static int batch[10] = {};
+	if (batch[net->id] != net->batch) {
+		batch[net->id] = net->batch;
+		for (int i = net->len - 1; i >= 0; i--) {
+			net->net3[i].dx = (double*)calloc(net->size[i] * net->batch, sizeof(double));
+		}
+	}
+	Pnetwork_predict(x, net);
+
+	for (int i = net->len - 1; i >= 0; i--) {
+
+		if (i == net->len - 1) {
+			tanh_back(net->net3[i].y, de, net->batch, net->size[i + 1]);
+			linear_back(net->net3[i - 1].a_y, net->net3[i].w, net->net3[i].b,
+				de, net->net3[i].dx, net->net3[i].dw, net->net3[i].db,
+				net->batch, net->size[i + 1], net->size[i]);
+		}
+		else if (i == 0) {
+			linear_back(x, net->net3[i].w, net->net3[i].b,
+				net->net3[i + 1].dx, net->net3[i].dx, net->net3[i].dw, net->net3[i].db,
+				net->batch, net->size[i + 1], net->size[i]);
+		}
+
+		else {
+			linear_back(net->net3[i - 1].a_y, net->net3[i].w, net->net3[i].b,
+				net->net3[i + 1].dx, net->net3[i].dx, net->net3[i].dw, net->net3[i].db,
+				net->batch, net->size[i + 1], net->size[i]);
+		}
+
+		if (i != 0) {
+			leaky_relu_back(net->net3[i - 1].y, net->net3[i].dx, net->batch, net->size[i]);
+		}
+
+
+	}
+	adam_update(net);
+}
+
+

@@ -71,3 +71,6 @@ void adam_update(network *net);
 void Qnetwork_predict(double *x, network *net);
 void Pnetwork_predict(double *x, network *net);
 
+void Qnetwork_train(double *x, double *targetsQ, network *net);
+void Pnetwork_train(double *x, double *de, network *net);
+
