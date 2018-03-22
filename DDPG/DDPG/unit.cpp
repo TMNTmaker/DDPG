@@ -280,3 +280,47 @@ void adam_update(network *net) {
 	}
 }
 
+void Qnetwork_predict(double *x, network *net) {
+	static int batch[10] = {};
+
+	if (batch[net->id] != net->batch) {
+		batch[net->id] = net->batch;
+		for (int i = 0; i < net->len; i++) {
+			net->net3[i].y = (double*)calloc(net->size[i + 1] * net->batch, sizeof(double));
+			net->net3[i].a_y = (double*)calloc(net->size[i + 1] * net->batch, sizeof(double));
+		}
+	}
+	for (int i = 0; i < net->len; i++) {
+		if (i == 0) {
+			linear(x, net->net3[i].w, net->net3[i].b, net->net3[i].y, net->batch, net->size[i + 1], net->size[i]);
+		}
+		else
+			linear(net->net3[i - 1].a_y, net->net3[i].w, net->net3[i].b, net->net3[i].y, net->batch, net->size[i + 1], net->size[i]);
+		if (i != net->len - 1)
+			leaky_relu(net->net3[i].y, net->net3[i].a_y, net->batch, net->size[i + 1]);
+	}
+}
+
+void Pnetwork_predict(double *x, network *net) {
+	static int batch[10] = {};
+
+	if (batch[net->id] != net->batch) {
+		batch[net->id] = net->batch;
+		for (int i = 0; i < net->len; i++) {
+			net->net3[i].y = (double*)calloc(net->size[i + 1] * net->batch, sizeof(double));
+			net->net3[i].a_y = (double*)calloc(net->size[i + 1] * net->batch, sizeof(double));
+		}
+	}
+	for (int i = 0; i < net->len; i++) {
+		if (i == 0) {
+			linear(x, net->net3[i].w, net->net3[i].b, net->net3[i].y, net->batch, net->size[i + 1], net->size[i]);
+		}
+		else
+			linear(net->net3[i - 1].a_y, net->net3[i].w, net->net3[i].b, net->net3[i].y, net->batch, net->size[i + 1], net->size[i]);
+		if (i != net->len - 1)
+			leaky_relu(net->net3[i].y, net->net3[i].a_y, net->batch, net->size[i + 1]);
+		else
+			tanh_(net->net3[i].y, net->net3[i].y, net->batch, net->size[i + 1]);
+	}
+}
+
