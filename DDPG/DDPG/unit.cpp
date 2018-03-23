@@ -405,3 +405,55 @@ void Pnetwork_train(double *x, double *de, network *net) {
 }
 
 
+states init_state(int size, int size_a) {
+	states seq;
+	seq.size = size;
+	seq.action = (double*)calloc(size_a, sizeof(double));
+	seq.n_seq = (double*)calloc(size, sizeof(double));
+	seq.seq = (double*)calloc(size, sizeof(double));
+	return seq;
+}
+
+ex init_ex(int sizeof_s, int sizeof_a, int max_size) {
+	ex experience;
+	experience.mem = (exmem*)calloc(max_size, sizeof(exmem));
+	experience.memmaxsize = max_size;
+	experience.s_size = sizeof_s;
+	experience.a_size = sizeof_a;
+
+	for (int i = 0; i < max_size; i++) {
+		experience.mem[i].p_state = (double*)calloc(sizeof_s, sizeof(double));
+		experience.mem[i].new_state = (double*)calloc(sizeof_s, sizeof(double));
+		experience.mem[i].action = (double*)calloc(sizeof_a, sizeof(double));
+	}
+	return experience;
+}
+
+void add_ex(ex *m, double *p_s, double reward, double *action, double *n_s) {
+
+	if (m->size == m->memmaxsize)
+	{
+		for (int i = 0; i < m->s_size; i++) {
+			m->mem[m->pos%m->memmaxsize].p_state[i] = p_s[i];
+			m->mem[m->pos%m->memmaxsize].new_state[i] = n_s[i];
+		}
+		m->mem[m->pos%m->memmaxsize].reward = reward;
+		for (int i = 0; i < m->a_size; i++) {
+			m->mem[m->pos%m->memmaxsize].action[i] = action[i];
+		}
+		m->pos++;
+	}
+	else {
+		for (int i = 0; i < m->s_size; i++) {
+			m->mem[m->pos].p_state[i] = p_s[i];
+			m->mem[m->pos].new_state[i] = n_s[i];
+		}
+		m->mem[m->pos].reward = reward;
+		for (int i = 0; i < m->a_size; i++) {
+			m->mem[m->pos].action[i] = action[i];
+		}
+		m->pos++;
+		m->size++;
+	}
+}
+

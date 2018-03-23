@@ -8,6 +8,30 @@
 
 
 typedef struct {
+	double *p_state;
+	double reward = 0;
+	double *action;
+	double *new_state;
+}exmem;
+
+typedef struct {
+	int memmaxsize;
+	int pos = 0;
+	int size = 0;
+	int s_size = 0;
+	int a_size = 0;
+	exmem *mem;
+}ex;
+
+typedef struct {
+	double *state;
+	double *action;
+	double *n_seq;
+	double *seq;
+	int size;
+}states;
+
+typedef struct {
 	int col;
 	int row;
 	double *w;
@@ -73,4 +97,8 @@ void Pnetwork_predict(double *x, network *net);
 
 void Qnetwork_train(double *x, double *targetsQ, network *net);
 void Pnetwork_train(double *x, double *de, network *net);
+
+states init_state(int size, int size_a);
+ex init_ex(int sizeof_s, int sizeof_a, int max_size);
+void add_ex(ex *m, double *p_s, double reward, double *action, double *n_s);
 
