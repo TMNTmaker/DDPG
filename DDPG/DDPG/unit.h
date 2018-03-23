@@ -102,3 +102,4 @@ states init_state(int size, int size_a);
 ex init_ex(int sizeof_s, int sizeof_a, int max_size);
 void add_ex(ex *m, double *p_s, double reward, double *action, double *n_s);
 
+void updatestate(states *state, int reset);

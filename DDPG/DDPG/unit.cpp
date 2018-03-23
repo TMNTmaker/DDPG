@@ -457,3 +457,23 @@ void add_ex(ex *m, double *p_s, double reward, double *action, double *n_s) {
 	}
 }
 
+void updatestate(states *state, int reset) {
+	static double x = 0;
+	static double v = 0;
+	static double f = 0;
+	static double m = 1;
+	static double a = 0;
+	if (reset) {
+		x = v = 0;
+	}
+	/*環境に応じて以下の処理を書き換える*/
+
+	for (int i = 0; i < state->size; i++) {
+		f = (state->action[i] * 50)*m - 9.8*m;
+		a = f / m;
+		v += a;
+		x += v * 0.01;
+		state->n_seq[i] = x;
+	}
+}
+
