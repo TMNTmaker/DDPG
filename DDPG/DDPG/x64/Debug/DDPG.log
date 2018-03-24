@@ -1,0 +1,6 @@
+﻿  unit.cpp
+c:\users\xps15\documents\visual studio 2017\projects\ddpg\ddpg\unit.cpp(16): warning C4244: '引数': 'time_t' から 'unsigned int' への変換です。データが失われる可能性があります。
+c:\users\xps15\documents\visual studio 2017\projects\ddpg\ddpg\unit.cpp(19): warning C4101: 'k': ローカル変数は 1 度も使われていません。
+  main.cpp
+  コードを生成中...
+  DDPG.vcxproj -> C:\Users\xps15\Documents\Visual Studio 2017\projects\DDPG\x64\Debug\DDPG.exe
