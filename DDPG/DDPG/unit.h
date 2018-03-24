@@ -15,6 +15,13 @@ typedef struct {
 }exmem;
 
 typedef struct {
+	double *p_state;
+	double *reward;
+	double *action;
+	double *new_state;
+}exbatch;
+
+typedef struct {
 	int memmaxsize;
 	int pos = 0;
 	int size = 0;
@@ -105,3 +112,6 @@ void add_ex(ex *m, double *p_s, double reward, double *action, double *n_s);
 void updatestate(states *state, int reset);
 void get_action(network *p, states state, double *seq);
 
+void random_data(network *p, ex e, exbatch *data);
+
+void update_p_and_q(network *p, network *q, ex e);

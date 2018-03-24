@@ -490,3 +490,70 @@ void get_action(network *p, states state, double *seq) {
 	alpha = fmax(0.00, alpha);
 }
 
+void random_data(network *p, ex e, exbatch *data) {
+	static int batch[10] = {};
+	if (batch[p->id] != p->batch) {
+		batch[p->id] = p->batch;
+		data->action = (double*)calloc(p->batch*e.a_size, sizeof(double));
+		data->new_state = (double*)calloc(p->batch*e.s_size, sizeof(double));
+		data->p_state = (double*)calloc(p->batch*e.a_size, sizeof(double));
+		data->reward = (double*)calloc(p->batch, sizeof(double));
+	}
+	for (int i = 0; i < p->batch; i++) {
+		int rd = (int)Uniform()*e.size;
+		data->reward[i] = e.mem[rd].reward;
+		for (int j = 0; j < e.a_size; j++) {
+			data->action[i*e.a_size + j] = e.mem[rd].action[j];
+		}
+		for (int j = 0; j < e.s_size; j++) {
+			data->new_state[i*e.s_size + j] = e.mem[rd].new_state[j];
+			data->p_state[i*e.s_size + j] = e.mem[rd].p_state[j];
+		}
+
+	}
+}
+
+void update_p_and_q(network *p, network *q, ex e) {
+	if (e.size < p->batch)
+		return;
+	static exbatch batch;
+	random_data(p, e, &batch);
+	Pnetwork_predict(batch.new_state, p);
+	static int ch_batch[10] = {};
+	static double *n_x;
+	static double *p_x;
+	static double *de;
+	static double *targetsQ;
+	if (ch_batch[p->id] != p->batch) {
+		ch_batch[p->id] = p->batch;
+		n_x = (double*)calloc(q->batch*(q->size[0]), sizeof(double));
+		p_x = (double*)calloc(q->batch*(q->size[0]), sizeof(double));
+		de = (double*)calloc(q->batch*(e.a_size), sizeof(double));
+		targetsQ = (double*)calloc(q->batch, sizeof(double));
+	}
+	for (int i = 0; i < q->batch; i++) {
+		for (int k = 0; k < e.s_size; k++) {
+			n_x[i* q->size[0] + k] = batch.new_state[i*e.s_size + k];
+			p_x[i* q->size[0] + k] = batch.p_state[i*e.s_size + k];
+		}
+		for (int j = 0; j < p->size[p->len]; j++) {
+			n_x[i* q->size[0] + e.s_size + j] = p->net3[p->len - 1].y[i*p->size[p->len] + j];
+			p_x[i* q->size[0] + e.s_size + j] = batch.action[i*p->size[p->len] + j];
+		}
+	}
+	Qnetwork_predict(n_x, q);
+	double *tmpQ = q->net3[q->len - 1].y;
+	for (int l = 0; l < q->batch; l++) {
+		targetsQ[l] = batch.reward[l] + 0.95*tmpQ[l];
+		//printf("targetsQ:%f\n", targetsQ[l]);
+	}
+	Qnetwork_train(p_x, targetsQ, q);
+	for (int i = 0; i < q->batch; i++) {
+		for (int z = e.s_size; z < q->size[0]; z++) {
+			de[z - e.s_size] = q->net3[0].dx[i*q->size[0] + z];
+			//printf("p_de:%f\n", de[z - e.s_size]);
+		}
+	}
+	Pnetwork_train(batch.p_state, de, p);
+}
+
