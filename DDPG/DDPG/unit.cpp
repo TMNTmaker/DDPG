@@ -477,3 +477,16 @@ void updatestate(states *state, int reset) {
 	}
 }
 
+void get_action(network *p, states state, double *seq) {
+	static double alpha = 2.0;
+	Pnetwork_predict(seq, p);
+	for (int i = 0; i < p->size[p->len]; i++) {
+		double tmp = p->net3[p->len - 1].y[i];
+		state.action[i] = fmax(fmin(tmp + (Uniform()*alpha * 2 - alpha), 1.0), -1.0);
+
+	}//printf("action[ %f] ", state.action[0]); printf("raw_y[ %f]\n", p->net3[p->len - 1].y[0]);
+	 //printf("test_alpha:%f\n",alpha);
+	alpha -= 1.0 / 2000;
+	alpha = fmax(0.00, alpha);
+}
+
