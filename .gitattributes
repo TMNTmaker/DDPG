@@ -1,0 +1,7 @@
+# リポジトリ内・チェックアウト時ともに LF に統一する
+* text=auto eol=lf
+
+# Visual Studio が生成するファイルは CRLF のまま変換しない
+*.sln -text
+*.vcxproj -text
+*.vcxproj.filters -text

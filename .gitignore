@@ -1,0 +1,31 @@
+# Visual Studio / MSBuild のビルド成果物
+Debug/
+Release/
+x64/
+Win32/
+*.obj
+*.pch
+*.exe
+*.pdb
+*.ilk
+*.idb
+*.tlog
+*.log
+*.res
+*.lastbuildstate
+*.CppClean.log
+
+# Visual Studio のユーザー固有ファイル
+.vs/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# CMake
+build/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
